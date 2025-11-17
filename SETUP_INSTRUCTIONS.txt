@@ -1,0 +1,57 @@
+=== RELASI STORE - SETUP INSTRUCTIONS ===
+
+Untuk menyelesaikan setup, lakukan langkah-langkah berikut:
+
+1. JALANKAN DATABASE SCRIPT:
+   - Buka Supabase Dashboard > SQL Editor
+   - Copy semua kode dari scripts/01-init-database.sql
+   - Paste dan jalankan (RUN)
+   - Tunggu sampai selesai
+
+2. SET ADMIN USER (Manual):
+   - Buka Supabase Dashboard > SQL Editor
+   - Jalankan query berikut setelah membuat akun:
+   
+   UPDATE users SET role = 'admin' WHERE email = 'your-admin-email@example.com';
+
+3. VERCEL DEPLOYMENT:
+   - Add environment variables di Vercel project settings:
+     * NEXT_PUBLIC_SUPABASE_URL
+     * NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+4. TEST APPLICATION:
+   - Buat akun user baru
+   - Login dan lihat /store (catalog view-only)
+   - Ubah role di database ke 'admin'
+   - Logout dan login ulang
+   - Akses /admin (dashboard dengan CRUD)
+
+=== FEATURES YANG SUDAH DIIMPLEMENTASI ===
+
+✓ Database Schema (products, users, orders)
+✓ Authentication System (Sign Up, Login, Logout)
+✓ Admin Dashboard (CRUD Penuh)
+✓ Public Store (Read-only Catalog)
+✓ Role-Based Access Control
+✓ Row-Level Security (RLS)
+✓ Protected Routes dengan Middleware
+✓ Search & Filter Functionality
+✓ Responsive Design (Mobile-First)
+✓ Modern UI/UX dengan Tailwind CSS
+
+=== DEFAULT ROUTES ===
+
+/ - Landing page
+/auth/login - Login page
+/auth/signup - Sign up page
+/admin - Admin dashboard (hanya untuk admin)
+/store - Katalog toko (hanya untuk user yang login)
+/dashboard - Redirect otomatis ke admin atau store
+
+=== NEXT STEPS ===
+
+1. Jalankan database script
+2. Test sign up dan login
+3. Ubah role user ke admin untuk testing admin features
+4. Deploy ke Vercel
+5. Enjoy!

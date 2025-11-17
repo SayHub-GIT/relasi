@@ -149,3 +149,4 @@ Landing Page (/)
 ## Support
 
 Jika ada masalah, buka Supabase dashboard atau check error logs di Vercel deployment.
+
