@@ -29,12 +29,30 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       storage: "",
       display: "",
       gpu: "",
+      keyboard: "",
+      camera: "",
+      ports: "",
+      weight: "",
     },
   })
+
+  const placeholderMap: Record<string, string> = {
+    processor: "e.g. Intel Core i7-10510U",
+    ram: "e.g. 16GB DDR4",
+    storage: "e.g. 512GB NVMe SSD",
+    display: 'e.g. 14" FHD IPS Anti Glare',
+    gpu: "e.g. Intel UHD Graphics",
+    keyboard: "e.g. Backlit Keyboard",
+    camera: "e.g. 720p HD Camera",
+    ports: "e.g. USB-C, HDMI, RJ45, USB 3.2",
+    weight: "e.g. 1.49kg",
+  }
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [imagePreview, setImagePreview] = useState<string>("")
   const [uploadingImage, setUploadingImage] = useState(false)
+
   const supabase = createSupabaseClient()
 
   useEffect(() => {
@@ -53,13 +71,19 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           storage: "",
           display: "",
           gpu: "",
+          keyboard: "",
+          camera: "",
+          ports: "",
+          weight: "",
         },
       })
       setImagePreview(product.image_url || "")
     }
   }, [product])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value, type } = e.target
     if (type === "checkbox") {
       setFormData((prev) => ({
@@ -99,9 +123,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         body: formData,
       })
 
-      if (!response.ok) {
-        throw new Error("Upload failed")
-      }
+      if (!response.ok) throw new Error("Upload failed")
 
       const { url } = await response.json()
       setFormData((prev) => ({ ...prev, image_url: url }))
@@ -134,33 +156,22 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         specs: formData.specs,
       }
 
-      console.log("[v0] Submitting laptop data:", submitData)
-
       if (product?.id) {
-        // Update
-        const { error: updateError } = await supabase.from("laptops").update(submitData).eq("id", product.id)
-
-        if (updateError) {
-          console.error("[v0] Update error:", updateError)
-          throw updateError
-        }
+        const { error: updateError } = await supabase
+          .from("laptops")
+          .update(submitData)
+          .eq("id", product.id)
+        if (updateError) throw updateError
       } else {
-        // Create
-        const { data, error: insertError } = await supabase.from("laptops").insert([submitData]).select()
-
-        if (insertError) {
-          console.error("[v0] Insert error:", insertError)
-          throw insertError
-        }
-
-        console.log("[v0] Successfully inserted:", data)
+        const { error: insertError } = await supabase
+          .from("laptops")
+          .insert([submitData])
+        if (insertError) throw insertError
       }
 
       onSuccess()
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred"
-      console.error("[v0] Submit error:", errorMessage)
-      setError(errorMessage)
+      setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setLoading(false)
     }
@@ -168,7 +179,9 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
-      <h2 className="text-2xl font-bold text-foreground">{product?.id ? "Edit Laptop" : "Add New Laptop"}</h2>
+      <h2 className="text-2xl font-bold text-foreground">
+        {product?.id ? "Edit Laptop" : "Add New Laptop"}
+      </h2>
 
       {error && (
         <Alert variant="destructive">
@@ -183,7 +196,11 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           <div className="flex flex-col gap-3">
             {imagePreview && (
               <div className="relative w-full h-48 rounded-lg overflow-hidden border border-border">
-                <img src={imagePreview || "/placeholder.svg"} alt="Preview" className="w-full h-full object-cover" />
+                <img
+                  src={imagePreview || "/placeholder.svg"}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
               </div>
             )}
             <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
@@ -209,7 +226,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             <Input
               type="text"
               name="name"
-              placeholder="e.g., MacBook Pro 14"
+              placeholder="e.g. Lenovo ThinkPad T14 Gen 1"
               value={formData.name}
               onChange={handleChange}
               required
@@ -221,11 +238,9 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             <Input
               type="number"
               name="year"
-              placeholder="e.g., 2024"
               value={formData.year}
               onChange={handleChange}
               min="2000"
-              max={new Date().getFullYear() + 1}
             />
           </div>
         </div>
@@ -235,36 +250,36 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           <label className="text-sm font-medium text-foreground">Description</label>
           <textarea
             name="description"
-            placeholder="Detailed description of the laptop..."
             value={formData.description}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
             rows={4}
+            placeholder="Enter full description of the laptop..."
             required
           />
         </div>
 
-        {/* Price and Condition */}
+        {/* Price & Condition */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Price (IDR)</label>
+            <label className="text-sm font-medium">Price (IDR)</label>
             <Input
               type="number"
               name="price"
-              placeholder="e.g., 20000000"
               value={formData.price}
               onChange={handleChange}
+              placeholder="e.g. 6250000"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Condition</label>
+            <label className="text-sm font-medium">Condition</label>
             <select
               name="condition"
               value={formData.condition}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 border rounded-md bg-background"
             >
               <option value="new">New</option>
               <option value="second">Second</option>
@@ -272,8 +287,8 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Sold Out</label>
-            <div className="flex items-center h-10 px-3 border border-border rounded-md bg-background">
+            <label className="text-sm font-medium">Sold Out</label>
+            <div className="flex items-center h-10 px-3 border rounded-md">
               <input
                 type="checkbox"
                 name="is_sold_out"
@@ -281,21 +296,24 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                 onChange={handleChange}
                 className="w-5 h-5 cursor-pointer"
               />
-              <span className="ml-2 text-sm text-foreground">Mark as sold out</span>
+              <span className="ml-2 text-sm">Mark as sold out</span>
             </div>
           </div>
         </div>
 
-        {/* Specifications */}
-        <div className="space-y-3 p-4 rounded-lg border border-border bg-card">
-          <label className="text-sm font-semibold text-foreground">Specifications</label>
+        {/* SPECIFICATIONS */}
+        <div className="space-y-3 p-4 rounded-lg border bg-card">
+          <label className="text-sm font-semibold">Specifications</label>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {Object.keys(formData.specs).map((key) => (
               <div key={key} className="space-y-1">
-                <label className="text-xs text-muted-foreground capitalize">{key}</label>
+                <label className="text-xs text-muted-foreground capitalize">
+                  {key}
+                </label>
                 <Input
                   type="text"
-                  placeholder={`e.g., ${key === "processor" ? "Intel Core i7" : key === "ram" ? "16GB" : ""}`}
+                  placeholder={placeholderMap[key] || "Fill detail..."}
                   value={formData.specs[key as keyof typeof formData.specs]}
                   onChange={(e) => handleSpecChange(key, e.target.value)}
                   className="text-sm"
@@ -310,7 +328,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/90">
+        <Button type="submit" disabled={loading}>
           {loading ? "Saving..." : product?.id ? "Update" : "Add"} Laptop
         </Button>
       </div>

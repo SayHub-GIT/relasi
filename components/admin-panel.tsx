@@ -1,7 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import ProductForm from "@/components/product-form"
 import ProductsTable from "@/components/products-table"
@@ -26,7 +32,10 @@ export default function AdminPanel({ onClose, onLogout, onProductsUpdated }: Adm
 
   const loadProducts = async () => {
     setLoading(true)
-    const { data } = await supabase.from("laptops").select("*").order("created_at", { ascending: false })
+    const { data } = await supabase
+      .from("laptops")
+      .select("*")
+      .order("created_at", { ascending: false })
     setProducts(data || [])
     setLoading(false)
   }
@@ -41,33 +50,38 @@ export default function AdminPanel({ onClose, onLogout, onProductsUpdated }: Adm
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
+      {/* Adjusted width + height + overflow */}
+      <DialogContent className="w-full max-w-full max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="border-b">
           <div className="flex items-center justify-between w-full">
             <div>
               <DialogTitle>Manajemen Laptop</DialogTitle>
-              <DialogDescription>Tambah, edit, atau hapus produk laptop dari katalog Anda</DialogDescription>
+              <DialogDescription>
+                Tambah, edit, atau hapus produk laptop dari katalog Anda
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>
-
-        <div className="flex-1 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:#45A17D_#1a1a1a] pr-4">
-          <style>{`
-            .admin-panel-scroll::-webkit-scrollbar {
-              width: 8px;
-            }
-            .admin-panel-scroll::-webkit-scrollbar-track {
-              background: #1a1a1a;
-              border-radius: 4px;
-            }
-            .admin-panel-scroll::-webkit-scrollbar-thumb {
-              background: #45A17D;
-              border-radius: 4px;
-            }
-            .admin-panel-scroll::-webkit-scrollbar-thumb:hover {
-              background: #50b88c;
-            }
-          `}</style>
+        {/* Adjust overflow-x-hidden here */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:thin] [scrollbar-color:#45A17D_#1a1a1a] pr-4">
+          <style>
+            {`
+              .admin-panel-scroll::-webkit-scrollbar {
+                width: 8px;
+              }
+              .admin-panel-scroll::-webkit-scrollbar-track {
+                background: #1a1a1a;
+                border-radius: 4px;
+              }
+              .admin-panel-scroll::-webkit-scrollbar-thumb {
+                background: #45A17D;
+                border-radius: 4px;
+              }
+              .admin-panel-scroll::-webkit-scrollbar-thumb:hover {
+                background: #50b88c;
+              }
+            `}
+          </style>
           <div className="admin-panel-scroll space-y-6">
             <div className="flex items-center justify-between sticky top-0 bg-background py-2 z-10">
               <h3 className="text-lg font-semibold">Produk ({products.length})</h3>
@@ -81,7 +95,6 @@ export default function AdminPanel({ onClose, onLogout, onProductsUpdated }: Adm
                 {showForm ? "Batal" : "+ Tambah Laptop"}
               </Button>
             </div>
-
             {showForm && (
               <div className="border border-border rounded-lg p-6 bg-card">
                 <ProductForm
@@ -99,7 +112,6 @@ export default function AdminPanel({ onClose, onLogout, onProductsUpdated }: Adm
                 />
               </div>
             )}
-
             {loading ? (
               <div className="flex justify-center py-8">
                 <div className="text-muted-foreground">Loading...</div>
@@ -114,7 +126,9 @@ export default function AdminPanel({ onClose, onLogout, onProductsUpdated }: Adm
                 onDelete={handleDeleteProduct}
               />
             ) : (
-              <div className="text-center py-12 text-muted-foreground">Belum ada produk. Tambahkan yang pertama!</div>
+              <div className="text-center py-12 text-muted-foreground">
+                Belum ada produk. Tambahkan yang pertama!
+              </div>
             )}
           </div>
         </div>
