@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { getFirebaseAuth } from "@/lib/firebase-client"
-import { signInWithEmailAndPassword } from "firebase/auth"
 
 export default function AdminAuthForm() {
   const [email, setEmail] = useState("")
@@ -15,7 +13,10 @@ export default function AdminAuthForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const auth = getFirebaseAuth()
+
+  // Local hardcode credentials (pakai env biar aman)
+  const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL
+  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,24 +24,28 @@ export default function AdminAuthForm() {
     setError(null)
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      // Validate admin login locally
+      if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+        throw new Error("Invalid email or password")
+      }
 
-      // Verify user is admin
-      const response = await fetch(`/api/get-user-role?userId=${userCredential.user.uid}`)
+      // Fake user uid untuk ambil role
+      const FAKE_UID = "local-admin"
+
+      // Check admin role
+      const response = await fetch(`/api/get-user-role?userId=${FAKE_UID}`)
       if (!response.ok) {
         throw new Error("Failed to verify admin role")
       }
 
       const data = await response.json()
       if (data.role !== "admin") {
-        await auth.signOut()
         throw new Error("Only admin accounts can login here")
       }
 
-      // Get ID token and store it
-      const idToken = await userCredential.user.getIdToken()
-      document.cookie = `firebaseUid=${userCredential.user.uid}; path=/; secure; samesite=strict`
-      document.cookie = `authToken=${idToken}; path=/; secure; samesite=strict`
+      // Save session locally
+      document.cookie = `localUid=${FAKE_UID}; path=/; secure; samesite=strict`
+      document.cookie = `localEmail=${email}; path=/; secure; samesite=strict`
 
       router.push("/admin")
     } catch (err) {
@@ -64,7 +69,13 @@ export default function AdminAuthForm() {
           </Alert>
         )}
 
-        <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
         <Input
           type="password"
