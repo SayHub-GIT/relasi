@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getFirebaseAuth, getFirebaseApp } from "@/lib/firebase-client"
-import { onAuthStateChanged, signOut, type User } from "firebase/auth"
 
-interface UserWithRole extends User {
+interface UserWithRole {
+  uid: string
+  email: string
   role?: string
 }
 
@@ -14,25 +14,29 @@ export function useAuth() {
   const [userRole, setUserRole] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const auth = getFirebaseAuth()
 
-  getFirebaseApp()
+  // Simulasi auth local (hardcode credential)
+  const LOCAL_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL
+  const LOCAL_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser as UserWithRole)
-        // Fetch user role from Supabase
-        await fetchUserRole(firebaseUser.uid)
+    const checkSession = () => {
+      const storedUser = localStorage.getItem("localUser")
+
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser)
+        setUser(parsed)
+        fetchUserRole(parsed.uid)
       } else {
         setUser(null)
         setUserRole(null)
       }
-      setLoading(false)
-    })
 
-    return () => unsubscribe()
-  }, [auth])
+      setLoading(false)
+    }
+
+    checkSession()
+  }, [])
 
   const fetchUserRole = async (userId: string) => {
     try {
@@ -46,15 +50,27 @@ export function useAuth() {
     }
   }
 
-  const logout = async () => {
-    try {
-      await signOut(auth)
-      setUser(null)
-      setUserRole(null)
-      router.push("/")
-    } catch (error) {
-      console.error("[v0] Logout error:", error)
+  const login = async (email: string, password: string) => {
+    if (email === LOCAL_EMAIL && password === LOCAL_PASSWORD) {
+      const fakeUser = {
+        uid: "local-admin",
+        email,
+      }
+
+      localStorage.setItem("localUser", JSON.stringify(fakeUser))
+      setUser(fakeUser)
+      await fetchUserRole(fakeUser.uid)
+      return { success: true }
     }
+
+    return { success: false, message: "Invalid credential" }
+  }
+
+  const logout = async () => {
+    localStorage.removeItem("localUser")
+    setUser(null)
+    setUserRole(null)
+    router.push("/")
   }
 
   return {
@@ -63,6 +79,7 @@ export function useAuth() {
     loading,
     isAdmin: userRole === "admin",
     isUser: userRole === "user",
+    login,
     logout,
   }
 }
