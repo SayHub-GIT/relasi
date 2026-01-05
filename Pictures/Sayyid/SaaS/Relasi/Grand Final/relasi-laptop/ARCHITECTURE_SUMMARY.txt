@@ -1,0 +1,71 @@
+RELASI STORE - PUBLIC CATALOG + ADMIN LOGIN ONLY
+================================================
+
+FINAL ARCHITECTURE:
+===================
+
+1. PUBLIC CATALOG (/store)
+   - No authentication required
+   - Users can browse laptops freely
+   - Search & filter functionality
+   - View-only access
+
+2. ADMIN DASHBOARD (/admin)
+   - Firebase authentication required
+   - Credentials: admin@relasi.com / admin123
+   - Full CRUD operations for products
+   - Protected by middleware + role verification
+
+3. HOME PAGE (/)
+   - Shows "Admin Login" button
+   - Shows "View Catalog" button
+   - Auto-redirects if already logged in
+
+AUTHENTICATION FLOW:
+====================
+
+Firebase (Login)
+     ↓
+Verify email & password
+     ↓
+Check admin role in Supabase
+     ↓
+Set firebaseUid cookie
+     ↓
+Redirect to /admin
+     ↓
+Middleware validates token for /admin routes
+
+DATABASE:
+=========
+- Supabase PostgreSQL
+- Tables: products, users (with roles)
+- No authentication data stored (Firebase handles it)
+
+KEY FILES UPDATED:
+==================
+✅ middleware.ts - Only protects /admin
+✅ app/page.tsx - Home routing logic
+✅ app/store/page.tsx - Public catalog (no auth)
+✅ components/admin-auth-form.tsx - Firebase login
+✅ components/admin-header.tsx - Firebase logout
+✅ app/admin/page.tsx - Simplified auth
+
+DELETED FILES:
+==============
+❌ app/auth/signup/page.tsx
+❌ components/auth-form.tsx
+
+QUICK START:
+============
+1. Home page → Click "Admin Login"
+2. Enter: admin@relasi.com / admin123
+3. Access admin dashboard at /admin
+4. Or click "View Catalog" for public store
+
+IMPORTANT:
+==========
+- Catalog is 100% public (no login required)
+- Only admin needs to login
+- Firebase handles all authentication
+- Supabase only stores data + admin roles
