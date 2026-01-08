@@ -1,8 +1,9 @@
 "use client"
 
+// These are NOT exposed to the browser/public since they don't have NEXT_PUBLIC_ prefix
 const ADMIN_CREDENTIALS = {
-  email: process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@relasi.com",
-  password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123",
+  email: process.env.ADMIN_EMAIL || "admin@relasi.com",
+  password: process.env.ADMIN_PASSWORD || "relasi123",
 }
 
 export function verifyAdminCredentials(email: string, password: string): boolean {

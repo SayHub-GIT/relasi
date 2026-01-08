@@ -12,7 +12,7 @@ FINAL ARCHITECTURE:
 
 2. ADMIN DASHBOARD (/admin)
    - Firebase authentication required
-   - Credentials: admin@relasi.com / admin123
+   - Credentials: adminrelasi.com / admin123
    - Full CRUD operations for products
    - Protected by middleware + role verification
 

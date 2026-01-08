@@ -49,7 +49,7 @@ export default function Navbar({
         {/* Logo */}
         <div className="flex items-center gap-3">
           <img
-            src={theme === "dark" ? "/images/sec.png" : "/images/rl.png"}
+            src={theme === "dark" ? "R-Dark.png" : "R-Light.png"}
             alt="Relasi Store Logo"
             className="w-10 h-10 object-contain"
           />
@@ -85,7 +85,7 @@ export default function Navbar({
           {isAdmin ? (
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <p className="text-sm font-medium text-foreground">admin@relasi.com</p>
+             <p className="text-sm font-medium text-foreground">Admin</p>
               </div>
               <Button
                 size="sm"

@@ -453,7 +453,7 @@ Spesifikasi:
                     htmlFor="is_sold_out"
                     className="ml-2 text-sm text-foreground cursor-pointer select-none leading-none whitespace-nowrap"
                   >
-                    Mark as sold out
+                    Sold 
                   </label>
                 </div>
               </div>
